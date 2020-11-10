@@ -20,7 +20,8 @@ use libc::user_regs_struct;
 
 cfg_if! {
     if #[cfg(any(all(target_os = "linux", target_arch = "s390x"),
-                 all(target_os = "linux", target_env = "gnu")))] {
+                 all(target_os = "linux", target_env = "gnu"),
+                 target_env = "uclibc"))] {
         #[doc(hidden)]
         pub type RequestType = ::libc::c_uint;
     } else {
@@ -30,8 +31,8 @@ cfg_if! {
 }
 
 libc_enum!{
-    #[cfg_attr(not(any(target_env = "musl", target_os = "android")), repr(u32))]
-    #[cfg_attr(any(target_env = "musl", target_os = "android"), repr(i32))]
+    #[cfg_attr(not(any(target_env = "musl", target_env = "uclibc", target_os = "android")), repr(u32))]
+    #[cfg_attr(any(target_env = "musl", target_env = "uclibc", target_os = "android"), repr(i32))]
     /// Ptrace Request enum defining the action to be taken.
     pub enum Request {
         PTRACE_TRACEME,
@@ -107,7 +108,8 @@ libc_enum!{
                                                target_arch = "mips64"))))]
         PTRACE_LISTEN,
         #[cfg(all(target_os = "linux", not(any(target_arch = "mips",
-                                               target_arch = "mips64"))))]
+                                               target_arch = "mips64",
+                                               target_env = "uclibc"))))]
         PTRACE_PEEKSIGINFO,
         #[cfg(all(target_os = "linux", target_env = "gnu",
                   any(target_arch = "x86", target_arch = "x86_64")))]
@@ -169,7 +171,7 @@ libc_bitflags! {
         PTRACE_O_TRACESECCOMP;
         /// Send a SIGKILL to the tracee if the tracer exits.  This is useful
         /// for ptrace jailers to prevent tracees from escaping their control.
-        #[cfg(any(target_os = "android", target_os = "linux"))]
+        #[cfg(all(not(target_env = "uclibc"), any(target_os = "android", target_os = "linux")))]
         PTRACE_O_EXITKILL;
     }
 }

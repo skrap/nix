@@ -850,7 +850,7 @@ libc_bitflags! {
                   target_os = "openbsd"))]
         ALTWERASE;
         IEXTEN;
-        #[cfg(not(target_os = "redox"))]
+        #[cfg(all(not(target_os = "redox"), not(target_env = "uclibc")))]
         EXTPROC;
         TOSTOP;
         #[cfg(not(target_os = "redox"))]

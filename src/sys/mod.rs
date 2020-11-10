@@ -1,7 +1,7 @@
 #[cfg(any(target_os = "dragonfly",
           target_os = "freebsd",
           target_os = "ios",
-          target_os = "linux",
+          all(target_os = "linux", not(target_env = "uclibc")),
           target_os = "macos",
           target_os = "netbsd"))]
 pub mod aio;

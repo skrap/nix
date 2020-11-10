@@ -33,7 +33,7 @@ pub use self::addr::{
 pub use crate::sys::socket::addr::netlink::NetlinkAddr;
 #[cfg(any(target_os = "android", target_os = "linux"))]
 pub use crate::sys::socket::addr::alg::AlgAddr;
-#[cfg(any(target_os = "android", target_os = "linux"))]
+#[cfg(all(any(target_os = "android", target_os = "linux"), not(target_env = "uclibc")))]
 pub use crate::sys::socket::addr::vsock::VsockAddr;
 
 pub use libc::{
@@ -677,7 +677,7 @@ impl ControlMessageOwned {
                 let dl = ptr::read_unaligned(p as *const libc::in_addr);
                 ControlMessageOwned::Ipv4RecvDstAddr(dl)
             },
-            #[cfg(target_os = "linux")]
+            #[cfg(all(target_os = "linux", not(target_env = "uclibc")))]
             (libc::SOL_UDP, libc::UDP_GRO) => {
                 let gso_size: u16 = ptr::read_unaligned(p as *const _);
                 ControlMessageOwned::UdpGroSegments(gso_size)
@@ -775,7 +775,7 @@ pub enum ControlMessage<'a> {
     /// passed through this control message.
     /// Send buffer should consist of multiple fixed-size wire payloads
     /// following one by one, and the last, possibly smaller one.
-    #[cfg(target_os = "linux")]
+    #[cfg(all(target_os = "linux", not(target_env = "uclibc")))]
     UdpGsoSegments(&'a u16),
 
     /// Configure the sending addressing and interface for v4
@@ -877,7 +877,7 @@ impl<'a> ControlMessage<'a> {
             ControlMessage::AlgSetAeadAssoclen(len) => {
                 len as *const _ as *const u8
             },
-            #[cfg(target_os = "linux")]
+            #[cfg(all(target_os = "linux", not(target_env = "uclibc")))]
             ControlMessage::UdpGsoSegments(gso_size) => {
                 gso_size as *const _ as *const u8
             },
@@ -925,7 +925,7 @@ impl<'a> ControlMessage<'a> {
             ControlMessage::AlgSetAeadAssoclen(len) => {
                 mem::size_of_val(len)
             },
-            #[cfg(target_os = "linux")]
+            #[cfg(all(target_os = "linux", not(target_env = "uclibc")))]
             ControlMessage::UdpGsoSegments(gso_size) => {
                 mem::size_of_val(gso_size)
             },
@@ -951,7 +951,7 @@ impl<'a> ControlMessage<'a> {
             #[cfg(any(target_os = "android", target_os = "linux"))]
             ControlMessage::AlgSetIv(_) | ControlMessage::AlgSetOp(_) |
                 ControlMessage::AlgSetAeadAssoclen(_) => libc::SOL_ALG,
-            #[cfg(target_os = "linux")]
+            #[cfg(all(target_os = "linux", not(target_env = "uclibc")))]
             ControlMessage::UdpGsoSegments(_) => libc::SOL_UDP,
             #[cfg(any(target_os = "linux", target_os = "macos",
                       target_os = "netbsd", target_os = "android",
@@ -984,7 +984,7 @@ impl<'a> ControlMessage<'a> {
             ControlMessage::AlgSetAeadAssoclen(_) => {
                 libc::ALG_SET_AEAD_ASSOCLEN
             },
-            #[cfg(target_os = "linux")]
+            #[cfg(all(target_os = "linux", not(target_env = "uclibc")))]
             ControlMessage::UdpGsoSegments(_) => {
                 libc::UDP_SEGMENT
             },
@@ -1733,7 +1733,7 @@ pub fn sockaddr_storage_to_addr(
             };
             Ok(SockAddr::Alg(AlgAddr(salg)))
         }
-        #[cfg(any(target_os = "android", target_os = "linux"))]
+        #[cfg(all(any(target_os = "android", target_os = "linux"), not(target_env = "uclibc")))]
         libc::AF_VSOCK => {
             use libc::sockaddr_vm;
             let svm = unsafe {

@@ -19,9 +19,9 @@ libc_bitflags!(
         EPOLLERR;
         EPOLLHUP;
         EPOLLRDHUP;
-        #[cfg(target_os = "linux")]  // Added in 4.5; not in Android.
+        #[cfg(all(target_os = "linux", not(target_env = "uclibc")))]  // Added in 4.5; not in Android.
         EPOLLEXCLUSIVE;
-        #[cfg(not(target_arch = "mips"))]
+        #[cfg(all(not(target_arch = "mips"), not(target_env = "uclibc")))]
         EPOLLWAKEUP;
         EPOLLONESHOT;
         EPOLLET;

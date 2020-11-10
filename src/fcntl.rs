@@ -147,7 +147,7 @@ libc_bitflags!(
         #[cfg(not(target_os = "redox"))]
         O_SYNC;
         /// Create an unnamed temporary file.
-        #[cfg(any(target_os = "android", target_os = "linux"))]
+        #[cfg(all(not(target_env = "uclibc"), any(target_os = "android", target_os = "linux")))]
         O_TMPFILE;
         /// Truncate an existing regular file to 0 length if it allows writing.
         O_TRUNC;
@@ -332,11 +332,11 @@ pub enum FcntlArg<'a> {
     F_SETLK(&'a libc::flock),
     F_SETLKW(&'a libc::flock),
     F_GETLK(&'a mut libc::flock),
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(all(any(target_os = "linux", target_os = "android"), not(target_env = "uclibc")))]
     F_OFD_SETLK(&'a libc::flock),
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(all(any(target_os = "linux", target_os = "android"), not(target_env = "uclibc")))]
     F_OFD_SETLKW(&'a libc::flock),
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(all(any(target_os = "linux", target_os = "android"), not(target_env = "uclibc")))]
     F_OFD_GETLK(&'a mut libc::flock),
     #[cfg(any(target_os = "android", target_os = "linux"))]
     F_ADD_SEALS(SealFlag),
@@ -379,11 +379,11 @@ pub fn fcntl(fd: RawFd, arg: FcntlArg) -> Result<c_int> {
             F_SETLKW(flock) => libc::fcntl(fd, libc::F_SETLKW, flock),
             #[cfg(not(target_os = "redox"))]
             F_GETLK(flock) => libc::fcntl(fd, libc::F_GETLK, flock),
-            #[cfg(any(target_os = "android", target_os = "linux"))]
+            #[cfg(all(not(target_env = "uclibc"), any(target_os = "android", target_os = "linux")))]
             F_OFD_SETLK(flock) => libc::fcntl(fd, libc::F_OFD_SETLK, flock),
-            #[cfg(any(target_os = "android", target_os = "linux"))]
+            #[cfg(all(not(target_env = "uclibc"), any(target_os = "android", target_os = "linux")))]
             F_OFD_SETLKW(flock) => libc::fcntl(fd, libc::F_OFD_SETLKW, flock),
-            #[cfg(any(target_os = "android", target_os = "linux"))]
+            #[cfg(all(not(target_env = "uclibc"), any(target_os = "android", target_os = "linux")))]
             F_OFD_GETLK(flock) => libc::fcntl(fd, libc::F_OFD_GETLK, flock),
             #[cfg(any(target_os = "android", target_os = "linux"))]
             F_ADD_SEALS(flag) => libc::fcntl(fd, libc::F_ADD_SEALS, flag.bits()),

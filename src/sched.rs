@@ -33,6 +33,7 @@ mod sched_linux_like {
             CLONE_DETACHED;
             CLONE_UNTRACED;
             CLONE_CHILD_SETTID;
+            #[cfg(not(target_env = "uclibc"))]
             CLONE_NEWCGROUP;
             CLONE_NEWUTS;
             CLONE_NEWIPC;
